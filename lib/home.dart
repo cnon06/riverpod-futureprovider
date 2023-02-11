@@ -6,13 +6,15 @@ import 'package:futureprovider/model/fatmodel.dart';
 final httpClientProvider =
     Provider<Dio>((ref) => Dio(BaseOptions(baseUrl: 'https://catfact.ninja/')));
 
-final catFactsProvider = FutureProvider<List<FactModel>>((ref) async {
+final catFactsProvider = FutureProvider.family<List<FactModel>, Map<String,dynamic>> ((ref, parameterApi) async {
   final dio = ref.watch(httpClientProvider);
-  final result = await dio.get('facts', queryParameters: 
-  {
-    'limit':10,
-    'max_length':40,
-  });
+  final result = await dio.get('facts',  queryParameters: parameterApi
+  // queryParameters: 
+  // {
+  //   'limit':10,
+  //   'max_length':40,
+  // }
+  );
   List<Map<String, dynamic>> data = List.from(result.data['data']);
 
   List<FactModel> modelData = data.map((e) => FactModel.fromJson(e)).toList();
@@ -30,7 +32,7 @@ class Home extends ConsumerStatefulWidget {
 class _HomeState extends ConsumerState<Home> {
   @override
   Widget build(BuildContext context) {
-    final readMe = ref.watch(catFactsProvider);
+    final readMe = ref.watch(catFactsProvider(const {'limit': 6, 'max_length': 30}));
     return Scaffold(
       appBar: AppBar(
         title: const Text('Material App Bar'),

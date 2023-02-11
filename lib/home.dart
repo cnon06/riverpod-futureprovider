@@ -8,13 +8,16 @@ final httpClientProvider =
 
 final catFactsProvider = FutureProvider<List<FactModel>>((ref) async {
   final dio = ref.watch(httpClientProvider);
-  final result = await dio.get('facts');
+  final result = await dio.get('facts', queryParameters: 
+  {
+    'limit':10,
+    'max_length':40,
+  });
   List<Map<String, dynamic>> data = List.from(result.data['data']);
 
   List<FactModel> modelData = data.map((e) => FactModel.fromJson(e)).toList();
-  
+
   return modelData;
- 
 });
 
 class Home extends ConsumerStatefulWidget {
@@ -35,7 +38,6 @@ class _HomeState extends ConsumerState<Home> {
       body: Center(
         child: Container(
             child: readMe.when(
-                
                 data: (data) => ListView.builder(
                     itemCount: data.length,
                     itemBuilder: (_, index) {
@@ -49,9 +51,7 @@ class _HomeState extends ConsumerState<Home> {
                       );
                     }),
                 error: (err, stack) => Text(err.toString()),
-                loading: () => const CircularProgressIndicator())
-        
-            ),
+                loading: () => const CircularProgressIndicator())),
       ),
     );
   }
